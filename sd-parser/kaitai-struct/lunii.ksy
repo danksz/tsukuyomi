@@ -19,7 +19,7 @@ types:
   stories_location_struct:
      seq:
       - id: start_address
-        type: u4                                                              
+        type: u4
       - id: size
         type: u4
       - id: unknown
