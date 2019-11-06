@@ -7,7 +7,46 @@ instances:
     type: content_struct
 #    pos: 0x4000
     pos: 0x30D4000
+enums:
+  lbool:
+    0xffff: disabled
+    0x0001: enabled
 types:
+  node_struct:
+    seq:
+      - id: uuid
+        size: 16
+      - id: image_start_sector
+        type: u4
+      - id: image_size
+        type: u4
+      - id: audio_start_sector
+        type: u4
+      - id: audio_size
+        type: u4
+#If the action is set but the chosen index is -1, then a random option of the list is selected.
+      - id: action_on_ok
+        type: u2
+      - id: option_in_transition
+        type: u2
+      - id: chosen_option
+        type: u2
+      - id: wheel_enabled
+        type: u2
+        enum: lbool
+      - id: ok_enabled
+        type: u2
+        enum: lbool
+    #If HOME button is enabled but no action is set (i.e. all transition fields are -1), the user is directed all the way back to the main stage (story-pack selection).
+      - id: home_enabled
+        type: u2
+        enum: lbool
+      - id: paused_enabled
+        type: u2
+        enum: lbool
+      - id: autojump_at_audio_ends_enabled
+        type: u2
+        enum: lbool
   content_struct:
     seq:
       - id: nbr_stories
@@ -32,6 +71,14 @@ types:
         type: u1
       - id: version
         type: u2
+      - id: nothing
+        size: 0x200 - 5
+      - id: nodes
+        type: node_struct
+        size: 0x200
+        repeat: expr
+        repeat-expr: nbr_nodes
+
   story_struct:
     seq:
       - id: story_locations
@@ -41,3 +88,4 @@ types:
         type: story_info_struct
         #pos: 0x4000 + (story_locations.start_address) * 0x200
         pos: 0x30D4000 + ((story_locations.start_address) * 0x200)
+        #size: 0x200
