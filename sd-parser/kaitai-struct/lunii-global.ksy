@@ -46,6 +46,20 @@ types:
       - id: autojump_at_audio_ends_enabled
         type: u2
         enum: lbool
+    instances:
+      images:
+        type: bmp
+        pos: 0x30D4000 + ((image_start_sector) * 0x200)
+        size: image_size * 0x200
+        repeat: expr
+        repeat-expr: eos
+      audios:
+        type: wav
+        pos: 0x30D4000 + ((audio_start_sector) * 0x200)
+        size: audio_size * 0x200
+        repeat: expr
+        repeat-expr: eos
+
   content_struct:
     seq:
       - id: nbr_stories
