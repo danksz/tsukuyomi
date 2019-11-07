@@ -5,7 +5,6 @@ meta:
 instances:
   contents:
     type: content_struct
-#    pos: 0x4000
     pos: 0x30D4000
 enums:
   lbool:
@@ -65,20 +64,22 @@ types:
         type: u4
   story_info_struct:
     seq:
+      - id: nodes_info
+        type: nodes_struct
+        size: 0x200
+      - id: nodes
+        type: node_struct
+        size: 0x200
+        repeat: expr
+        repeat-expr: nodes_info.nbr_nodes
+  nodes_struct:
+    seq:
       - id: nbr_nodes
         type: u2
       - id: factory_disabled
         type: u1
       - id: version
         type: u2
-      - id: nothing
-        size: 0x200 - 5
-      - id: nodes
-        type: node_struct
-        size: 0x200
-        repeat: expr
-        repeat-expr: nbr_nodes
-
   story_struct:
     seq:
       - id: story_locations
@@ -86,6 +87,4 @@ types:
     instances:
       story_info:
         type: story_info_struct
-        #pos: 0x4000 + (story_locations.start_address) * 0x200
         pos: 0x30D4000 + ((story_locations.start_address) * 0x200)
-        #size: 0x200
