@@ -2,6 +2,9 @@ meta:
   id: lunii
   file-extension: lunii
   endian: be
+  imports:
+    - bmp
+    - wav
 instances:
   contents:
     type: content_struct
@@ -11,7 +14,7 @@ enums:
     0xffff: disabled
     0x0001: enabled
 types:
-  node_struct:
+  navigation_struct:
     seq:
       - id: uuid
         size: 16
@@ -46,19 +49,20 @@ types:
       - id: autojump_at_audio_ends_enabled
         type: u2
         enum: lbool
+  node_struct:
+    seq:
+      - id: navigation
+        type: navigation_struct
+        size: 0x200
     instances:
       images:
         type: bmp
-        pos: 0x30D4000 + ((image_start_sector) * 0x200)
-        size: image_size * 0x200
-        repeat: expr
-        repeat-expr: eos
+        pos: 0x30D4000 + ((2 + navigation.image_start_sector) * 0x200)
+        size: navigation.image_size * 0x200
       audios:
         type: wav
-        pos: 0x30D4000 + ((audio_start_sector) * 0x200)
-        size: audio_size * 0x200
-        repeat: expr
-        repeat-expr: eos
+        pos: 0x30D4000 + (( 2 + navigation.audio_start_sector) * 0x200)
+        size: navigation.audio_size * 0x200
 
   content_struct:
     seq:
@@ -83,7 +87,7 @@ types:
         size: 0x200
       - id: nodes
         type: node_struct
-        size: 0x200
+        #size: 0x200
         repeat: expr
         repeat-expr: nodes_info.nbr_nodes
   nodes_struct:
