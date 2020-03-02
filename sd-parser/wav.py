@@ -53,7 +53,7 @@ class Wav(KaitaiStruct):
         self.riff_id = self._io.ensure_fixed_contents(b"\x52\x49\x46\x46")
         self.file_size = self._io.read_u4le()
         self.wave_id = self._io.ensure_fixed_contents(b"\x57\x41\x56\x45")
-        self._raw_chunks = self._io.read_bytes((self.file_size - 5))
+        self._raw_chunks = self._io.read_bytes((self.file_size - 4))
         _io__raw_chunks = KaitaiStream(BytesIO(self._raw_chunks))
         self.chunks = self._root.ChunksType(_io__raw_chunks, self, self._root)
 
