@@ -5,10 +5,14 @@ meta:
   imports:
     - bmp
     - wav
+seq:
+   - id: header
+     size: fileoffset
+   - id: contents
+     type: content_struct
 instances:
-  contents:
-    type: content_struct
-    pos: 0x30D4000
+   fileoffset:
+     value: 0x30D4000
 enums:
   lbool:
     0xffff: disabled
@@ -55,13 +59,15 @@ types:
         type: navigation_struct
         size: 0x200
     instances:
+      story_start_address:
+        value: _parent._parent.abs_start_address
       images:
         type: bmp
-        pos: 0x30D4000 + ((2 + navigation.image_start_sector) * 0x200)
+        pos: story_start_address + ((1 + navigation.image_start_sector) * 0x200)
         size: navigation.image_size * 0x200
       audios:
         type: wav
-        pos: 0x30D4000 + (( 2 + navigation.audio_start_sector) * 0x200)
+        pos: story_start_address  + ((1 + navigation.audio_start_sector) * 0x200)
         size: navigation.audio_size * 0x200
 
   content_struct:
@@ -72,25 +78,8 @@ types:
         type: story_struct
         repeat: expr
         repeat-expr: nbr_stories
-  stories_location_struct:
-     seq:
-      - id: start_address
-        type: u4                                                              
-      - id: size
-        type: u4
-      - id: unknown
-        type: u4
+
   story_info_struct:
-    seq:
-      - id: nodes_info
-        type: nodes_struct
-        size: 0x200
-      - id: nodes
-        type: node_struct
-        #size: 0x200
-        repeat: expr
-        repeat-expr: nodes_info.nbr_nodes
-  nodes_struct:
     seq:
       - id: nbr_nodes
         type: u2
@@ -98,11 +87,24 @@ types:
         type: u1
       - id: version
         type: u2
+      - id: padding
+        size: 0x200 - 5 #TODO this must be reworked
+      - id: nodes
+        type: node_struct
+        repeat: expr
+        repeat-expr: nbr_nodes
+
   story_struct:
     seq:
-      - id: story_locations
-        type: stories_location_struct
+      - id: start_address
+        type: u4
+      - id: size
+        type: u4
+      - id: unknown
+        type: u4
     instances:
+      abs_start_address:
+        value: _root.fileoffset + (start_address * 0x200)
       story_info:
+        pos: abs_start_address
         type: story_info_struct
-        pos: 0x30D4000 + ((story_locations.start_address) * 0x200)
