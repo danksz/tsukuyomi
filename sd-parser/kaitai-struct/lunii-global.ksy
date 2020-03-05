@@ -20,16 +20,6 @@ enums:
 types:
   navigation_struct:
     seq:
-      - id: uuid
-        size: 16
-      - id: image_start_sector
-        type: u4
-      - id: image_size
-        type: u4
-      - id: audio_start_sector
-        type: u4
-      - id: audio_size
-        type: u4
 #If the action is set but the chosen index is -1, then a random option of the list is selected.
       - id: action_on_ok
         type: u2
@@ -55,20 +45,38 @@ types:
         enum: lbool
   node_struct:
     seq:
+      - id: uuid
+        size: 16
+      - id: image_start_sector
+        type: u4
+      - id: image_size
+        type: u4
+      - id: audio_start_sector
+        type: u4
+      - id: audio_size
+        type: u4
       - id: navigation
         type: navigation_struct
-        size: 0x200
+        size: 0x200 - 32
     instances:
+##### this is just for debugging
       story_start_address:
         value: _parent._parent.abs_start_address
-      images:
+      image_start_address:
+        value: story_start_address + ((1 + image_start_sector) * 0x200)
+      audio_start_address:
+        value: story_start_address + ((1 + audio_start_sector) * 0x200)
+#####
+      image:
         type: bmp
-        pos: story_start_address + ((1 + navigation.image_start_sector) * 0x200)
-        size: navigation.image_size * 0x200
-      audios:
+        pos: image_start_address
+        size: image_size * 0x200
+        if: image_size != 0xffffffff
+      audio:
         type: wav
-        pos: story_start_address  + ((1 + navigation.audio_start_sector) * 0x200)
-        size: navigation.audio_size * 0x200
+        pos: audio_start_address
+        size: audio_size * 0x200
+        if: audio_size != 0xffffffff
 
   content_struct:
     seq:

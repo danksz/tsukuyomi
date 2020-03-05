@@ -98,9 +98,44 @@ class Lunii(KaitaiStruct):
             self._read()
 
         def _read(self):
-            self._raw_navigation = self._io.read_bytes(512)
+            self.uuid = self._io.read_bytes(16)
+            self.image_start_sector = self._io.read_u4be()
+            self.image_size = self._io.read_u4be()
+            self.audio_start_sector = self._io.read_u4be()
+            self.audio_size = self._io.read_u4be()
+            self._raw_navigation = self._io.read_bytes((512 - 32))
             _io__raw_navigation = KaitaiStream(BytesIO(self._raw_navigation))
             self.navigation = self._root.NavigationStruct(_io__raw_navigation, self, self._root)
+
+        @property
+        def image(self):
+            if hasattr(self, '_m_image'):
+                return self._m_image if hasattr(self, '_m_image') else None
+
+            if self.image_size != 4294967295:
+                _pos = self._io.pos()
+                self._io.seek(self.image_start_address)
+                self._raw__m_image = self._io.read_bytes((self.image_size * 512))
+                _io__raw__m_image = KaitaiStream(BytesIO(self._raw__m_image))
+                self._m_image = bmp.Bmp(_io__raw__m_image)
+                self._io.seek(_pos)
+
+            return self._m_image if hasattr(self, '_m_image') else None
+
+        @property
+        def audio(self):
+            if hasattr(self, '_m_audio'):
+                return self._m_audio if hasattr(self, '_m_audio') else None
+
+            if self.audio_size != 4294967295:
+                _pos = self._io.pos()
+                self._io.seek(self.audio_start_address)
+                self._raw__m_audio = self._io.read_bytes((self.audio_size * 512))
+                _io__raw__m_audio = KaitaiStream(BytesIO(self._raw__m_audio))
+                self._m_audio = wav.Wav(_io__raw__m_audio)
+                self._io.seek(_pos)
+
+            return self._m_audio if hasattr(self, '_m_audio') else None
 
         @property
         def story_start_address(self):
@@ -111,30 +146,20 @@ class Lunii(KaitaiStruct):
             return self._m_story_start_address if hasattr(self, '_m_story_start_address') else None
 
         @property
-        def images(self):
-            if hasattr(self, '_m_images'):
-                return self._m_images if hasattr(self, '_m_images') else None
+        def audio_start_address(self):
+            if hasattr(self, '_m_audio_start_address'):
+                return self._m_audio_start_address if hasattr(self, '_m_audio_start_address') else None
 
-            _pos = self._io.pos()
-            self._io.seek((self.story_start_address + ((1 + self.navigation.image_start_sector) * 512)))
-            self._raw__m_images = self._io.read_bytes((self.navigation.image_size * 512))
-            _io__raw__m_images = KaitaiStream(BytesIO(self._raw__m_images))
-            self._m_images = bmp.Bmp(_io__raw__m_images)
-            self._io.seek(_pos)
-            return self._m_images if hasattr(self, '_m_images') else None
+            self._m_audio_start_address = (self.story_start_address + ((1 + self.audio_start_sector) * 512))
+            return self._m_audio_start_address if hasattr(self, '_m_audio_start_address') else None
 
         @property
-        def audios(self):
-            if hasattr(self, '_m_audios'):
-                return self._m_audios if hasattr(self, '_m_audios') else None
+        def image_start_address(self):
+            if hasattr(self, '_m_image_start_address'):
+                return self._m_image_start_address if hasattr(self, '_m_image_start_address') else None
 
-            _pos = self._io.pos()
-            self._io.seek((self.story_start_address + ((1 + self.navigation.audio_start_sector) * 512)))
-            self._raw__m_audios = self._io.read_bytes((self.navigation.audio_size * 512))
-            _io__raw__m_audios = KaitaiStream(BytesIO(self._raw__m_audios))
-            self._m_audios = wav.Wav(_io__raw__m_audios)
-            self._io.seek(_pos)
-            return self._m_audios if hasattr(self, '_m_audios') else None
+            self._m_image_start_address = (self.story_start_address + ((1 + self.image_start_sector) * 512))
+            return self._m_image_start_address if hasattr(self, '_m_image_start_address') else None
 
 
     class NavigationStruct(KaitaiStruct):
@@ -145,11 +170,6 @@ class Lunii(KaitaiStruct):
             self._read()
 
         def _read(self):
-            self.uuid = self._io.read_bytes(16)
-            self.image_start_sector = self._io.read_u4be()
-            self.image_size = self._io.read_u4be()
-            self.audio_start_sector = self._io.read_u4be()
-            self.audio_size = self._io.read_u4be()
             self.action_on_ok = self._io.read_u2be()
             self.option_in_transition = self._io.read_u2be()
             self.chosen_option = self._io.read_u2be()
