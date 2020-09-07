@@ -77,6 +77,14 @@ types:
         pos: audio_start_address
         size: audio_size * 0x200
         if: audio_size != 0xffffffff
+      image_raw:
+        pos: image_start_address
+        size: image_size * 0x200
+        if: image_size != 0xffffffff
+      audio_raw:
+        pos: audio_start_address
+        size: audio_size * 0x200
+        if: audio_size != 0xffffffff
 
   content_struct:
     seq:
