@@ -10,6 +10,8 @@ logging.basicConfig(filename='dump.log',
 logging.getLogger().addHandler(logging.StreamHandler())
 
 lun = Lunii.from_file(sys.argv[1])
+logging.info('position of content structure: {}'.format(lun.fileoffset))
+logging.info('position of number of stories: {}'.format(lun.contents._io.pos()))
 logging.info('Number of stories: {}'.format(lun.contents.nbr_stories))
 
 field_sep = '    '
@@ -19,8 +21,8 @@ for story in lun.contents.stories:
     story_sep = field_sep
     string  = root_sep  + 'Story[{:02}]\n'.format(lun.contents.stories.index(story))
     string += story_sep + 'address:   0x{:08X}\n'.format(story.abs_start_address)
-    string += story_sep + 'sector:    0x{:08X}\n'.format(story.start_address)
     string += story_sep + 'size:      0x{:08X}\n'.format(story.size*0x200)
+    string += story_sep + 'sector:    0x{:08X}\n'.format(story.start_address)
     string += story_sep + 'nbr_nodes: {:03}'.format(story.story_info.nbr_nodes)
     logging.info(string)
 
