@@ -146,6 +146,32 @@ class Lunii(KaitaiStruct):
             return self._m_story_start_address if hasattr(self, '_m_story_start_address') else None
 
         @property
+        def audio_raw(self):
+            if hasattr(self, '_m_audio_raw'):
+                return self._m_audio_raw if hasattr(self, '_m_audio_raw') else None
+
+            if self.audio_size != 4294967295:
+                _pos = self._io.pos()
+                self._io.seek(self.audio_start_address)
+                self._m_audio_raw = self._io.read_bytes((self.audio_size * 512))
+                self._io.seek(_pos)
+
+            return self._m_audio_raw if hasattr(self, '_m_audio_raw') else None
+
+        @property
+        def image_raw(self):
+            if hasattr(self, '_m_image_raw'):
+                return self._m_image_raw if hasattr(self, '_m_image_raw') else None
+
+            if self.image_size != 4294967295:
+                _pos = self._io.pos()
+                self._io.seek(self.image_start_address)
+                self._m_image_raw = self._io.read_bytes((self.image_size * 512))
+                self._io.seek(_pos)
+
+            return self._m_image_raw if hasattr(self, '_m_image_raw') else None
+
+        @property
         def audio_start_address(self):
             if hasattr(self, '_m_audio_start_address'):
                 return self._m_audio_start_address if hasattr(self, '_m_audio_start_address') else None
